@@ -259,7 +259,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "dotenv",
- "env_logger",
+ "env_logger 0.9.0",
  "log",
  "rand 0.8.5",
  "rand_xorshift",
@@ -701,6 +701,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossbeam"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2801af0d36612ae591caa9568261fddce32ce6e08a7275ea334a06a4ad021a2c"
+dependencies = [
+ "cfg-if 1.0.0",
+ "crossbeam-channel",
+ "crossbeam-deque",
+ "crossbeam-epoch",
+ "crossbeam-queue",
+ "crossbeam-utils",
+]
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -733,6 +747,16 @@ dependencies = [
  "memoffset",
  "once_cell",
  "scopeguard",
+]
+
+[[package]]
+name = "crossbeam-queue"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1cfb3ea8a53f37c40dea2c7bedcbd88bdfae54f5e2175d6ecaff1c988353add"
+dependencies = [
+ "cfg-if 1.0.0",
+ "crossbeam-utils",
 ]
 
 [[package]]
@@ -791,6 +815,16 @@ checksum = "b1d1a86f49236c215f271d40892d5fc950490551400b02ef360692c29815c714"
 dependencies = [
  "generic-array 0.14.5",
  "subtle",
+]
+
+[[package]]
+name = "crypto_cuda"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bitflags",
+ "env_logger 0.8.4",
+ "log",
 ]
 
 [[package]]
@@ -1085,6 +1119,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9852635589dc9f9ea1b6fe9f05b50ef208c85c834a562f0c6abb1c475736ec2b"
 dependencies = [
  "cfg-if 1.0.0",
+]
+
+[[package]]
+name = "env_logger"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
+dependencies = [
+ "atty",
+ "humantime",
+ "log",
+ "regex",
+ "termcolor",
 ]
 
 [[package]]
@@ -1474,7 +1521,7 @@ dependencies = [
 name = "ffi"
 version = "0.1.0"
 dependencies = [
- "env_logger",
+ "env_logger 0.9.0",
  "libc",
  "log",
  "once_cell",
@@ -1784,7 +1831,7 @@ name = "geth-utils"
 version = "0.1.0"
 source = "git+https://github.com/scroll-tech/zkevm-circuits.git?branch=goerli-0215#3395fe1abfb39000da19631af27508e33437295d"
 dependencies = [
- "env_logger",
+ "env_logger 0.9.0",
  "gobuild",
  "log",
 ]
@@ -2038,14 +2085,17 @@ dependencies = [
 [[package]]
 name = "halo2_proofs"
 version = "0.2.0"
-source = "git+https://github.com/scroll-tech/halo2.git?branch=scroll-dev-0220#49f4c58908095b46b4f0983404c12106b725df4e"
 dependencies = [
  "ark-std",
  "blake2b_simd",
  "cfg-if 0.1.10",
+ "crossbeam",
+ "crypto_cuda",
+ "env_logger 0.8.4",
  "ff",
  "group",
  "halo2curves 0.3.1 (git+https://github.com/privacy-scaling-explorations/halo2curves.git?tag=0.3.1)",
+ "lazy_static",
  "log",
  "num-bigint",
  "num-integer",
@@ -2055,6 +2105,7 @@ dependencies = [
  "sha3 0.9.1",
  "subtle",
  "tracing",
+ "which",
 ]
 
 [[package]]
@@ -2498,7 +2549,7 @@ name = "keccak256"
 version = "0.1.0"
 source = "git+https://github.com/scroll-tech/zkevm-circuits.git?branch=goerli-0215#3395fe1abfb39000da19631af27508e33437295d"
 dependencies = [
- "env_logger",
+ "env_logger 0.9.0",
  "eth-types",
  "halo2_proofs",
  "itertools",
@@ -5556,6 +5607,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "which"
+version = "4.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2441c784c52b289a054b7201fc93253e288f094e2f4be9058343127c4226a269"
+dependencies = [
+ "either",
+ "libc",
+ "once_cell",
+]
+
+[[package]]
 name = "winapi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5752,7 +5814,7 @@ dependencies = [
  "bus-mapping",
  "chrono",
  "dotenv",
- "env_logger",
+ "env_logger 0.9.0",
  "eth-types",
  "ethers-core",
  "git-version",
@@ -5788,7 +5850,7 @@ source = "git+https://github.com/scroll-tech/zkevm-circuits.git?branch=goerli-02
 dependencies = [
  "array-init",
  "bus-mapping",
- "env_logger",
+ "env_logger 0.9.0",
  "eth-types",
  "ethers-core",
  "ethers-signers",
