@@ -9,7 +9,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::time::Instant;
 use zkevm::{
-    circuit::{EvmCircuit, StateCircuit, AGG_DEGREE, DEGREE},
+    circuit::{EvmCircuit, StateCircuit, AGG_DEGREE, DEGREE, SuperCircuit},
     prover::Prover,
     utils::{get_block_trace_from_file, load_or_create_params, load_or_create_seed},
 };
@@ -38,6 +38,11 @@ struct Args {
     /// Boolean means if output agg proof.
     #[clap(long = "agg")]
     agg_proof: Option<bool>,
+
+    /// Option means if generates agg proof.
+    /// Boolean means if output agg proof.
+    #[clap(long = "super")]
+    super_proof: Option<bool>,
 }
 
 fn main() {
@@ -71,6 +76,18 @@ fn main() {
     }
 
     let outer_now = Instant::now();
+
+    if args.super_proof.is_some() {
+        let now = Instant::now();
+        prover
+            .create_target_circuit_proof_batch::<SuperCircuit>(&traces.iter().map(|(_, v)| v.clone()).collect::<Vec<_>>())
+            .expect("cannot generate super_proof");
+        info!(
+            "finish generating super proof, elapsed: {:?}",
+            now.elapsed()
+        );
+    }
+
     for (trace_name, trace) in traces {
         if args.evm_proof.is_some() {
             let proof_path = PathBuf::from(&trace_name).join("evm.proof");
@@ -90,6 +107,7 @@ fn main() {
                 f.write_all(evm_proof.proof.as_slice()).unwrap();
             }
         }
+
 
         if args.state_proof.is_some() {
             let proof_path = PathBuf::from(&trace_name).join("state.proof");
