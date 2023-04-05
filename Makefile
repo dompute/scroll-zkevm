@@ -12,6 +12,9 @@ test-all: test-ci ## Run all available tests
 build-release: ## Check build in release mode
 	@cargo build --release
 
+run-supper:
+	@cargo run --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace $PWD/traces-data --super true
+
 fmt: ## Check whether the code is formated correctly
 	@cargo fmt --all -- --check
 
