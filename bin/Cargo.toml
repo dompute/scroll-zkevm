@@ -16,6 +16,8 @@ serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0.66"
 zkevm = { path = "../zkevm" }
+halo2_proofs = { path = "../../halo2/halo2_proofs" }
+
 
 [[bin]]
 name = "setup"
@@ -28,3 +30,8 @@ path = "src/prove.rs"
 [[bin]]
 name = "verify"
 path = "src/verify.rs"
+
+
+[[bin]]
+name = "convert"
+path = "src/convert.rs"

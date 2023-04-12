@@ -11,7 +11,7 @@ use std::time::Instant;
 use zkevm::{
     circuit::{EvmCircuit, StateCircuit, AGG_DEGREE, DEGREE, SuperCircuit},
     prover::Prover,
-    utils::{get_block_trace_from_file, load_or_create_params, load_or_create_seed},
+    utils::{get_block_trace_from_file, load_or_create_raw_params, load_or_create_seed},
 };
 
 #[derive(Parser, Debug)]
@@ -50,9 +50,9 @@ fn main() {
     env_logger::init();
 
     let args = Args::parse();
-    let params = load_or_create_params(&args.params_path.clone().unwrap(), *DEGREE)
+    let params = load_or_create_raw_params(&args.params_path.clone().unwrap(), *DEGREE)
         .expect("failed to load or create params");
-    let agg_params = load_or_create_params(&args.params_path.unwrap(), *AGG_DEGREE)
+    let agg_params = load_or_create_raw_params(&args.params_path.unwrap(), *AGG_DEGREE)
         .expect("failed to load or create params");
     let seed =
         load_or_create_seed(&args.seed_path.unwrap()).expect("failed to load or create seed");

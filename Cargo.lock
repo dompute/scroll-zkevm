@@ -2122,7 +2122,6 @@ dependencies = [
  "pasta_curves",
  "rand 0.8.5",
  "rand_core 0.6.3",
- "serde",
  "static_assertions",
  "subtle",
 ]
