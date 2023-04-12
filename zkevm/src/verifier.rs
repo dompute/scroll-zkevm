@@ -13,6 +13,7 @@ use halo2_proofs::poly::kzg::commitment::ParamsKZG;
 use halo2_proofs::poly::kzg::multiopen::VerifierGWC;
 use halo2_proofs::poly::kzg::strategy::SingleStrategy;
 use halo2_proofs::transcript::{Challenge255, PoseidonRead};
+use halo2_proofs::SerdeFormat;
 use halo2_snark_aggregator_api::transcript::sha::ShaRead;
 use halo2_snark_aggregator_circuit::verify_circuit::Halo2VerifierCircuit;
 
@@ -60,8 +61,10 @@ impl Verifier {
     }
 
     pub fn from_fpath(params_path: &str, agg_vk: Option<Vec<u8>>) -> Self {
-        let params = load_params(params_path, *DEGREE).expect("failed to init params");
-        let agg_params = load_params(params_path, *AGG_DEGREE).expect("failed to init params");
+        let params = load_params(params_path, *DEGREE, SerdeFormat::Processed)
+            .expect("failed to init params");
+        let agg_params = load_params(params_path, *AGG_DEGREE, SerdeFormat::Processed)
+            .expect("failed to init params");
         Self::from_params(params, agg_params, agg_vk)
     }
 

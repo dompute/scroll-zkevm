@@ -13,8 +13,48 @@ use std::str::FromStr;
 use types::eth::{BlockTrace, BlockTraceJsonRpcResult};
 use zkevm_circuits::witness;
 
-/// return setup params by reading from file or generate new one
+pub fn load_or_create_raw_params(params_dir: &str, degree: usize) -> Result<ParamsKZG<Bn256>> {
+    load_or_create_params_with_format(params_dir, degree, SerdeFormat::RawBytes)
+}
+
 pub fn load_or_create_params(params_dir: &str, degree: usize) -> Result<ParamsKZG<Bn256>> {
+    load_or_create_params_with_format(params_dir, degree, SerdeFormat::Processed)
+}
+
+pub fn get_params_path(params_dir: &str, degree: usize, format: SerdeFormat) -> String {
+    let suffix = if format == SerdeFormat::Processed {
+        "processed"
+    } else if format == SerdeFormat::RawBytes {
+        "raw"
+    } else {
+        "raw_unchecked"
+    };
+
+    format!("{params_dir}/params{degree}{suffix}")
+}
+
+/// convert params from `from_format` to `to_format`
+pub fn convert_params(
+    params_dir: &str,
+    degree: usize,
+    from_format: SerdeFormat,
+    to_format: SerdeFormat,
+) -> Result<ParamsKZG<Bn256>> {
+    let params = load_or_create_params_with_format(params_dir, degree, from_format)?;
+    if from_format == to_format {
+        return Ok(params);
+    }
+
+    let params_path = get_params_path(params_dir, degree, to_format);
+    create_params(&params_path, degree, to_format)
+}
+
+/// return setup params by reading from file or generate new one
+pub fn load_or_create_params_with_format(
+    params_dir: &str,
+    degree: usize,
+    format: SerdeFormat,
+) -> Result<ParamsKZG<Bn256>> {
     let _path = PathBuf::from(params_dir);
 
     match metadata(params_dir) {
@@ -29,48 +69,66 @@ pub fn load_or_create_params(params_dir: &str, degree: usize) -> Result<ParamsKZ
         }
     };
 
-    let params_path = format!("{params_dir}/params{degree}");
+    let suffix = if format == SerdeFormat::Processed {
+        "processed"
+    } else if format == SerdeFormat::RawBytes {
+        "raw"
+    } else {
+        "raw_unchecked"
+    };
+
+    let params_path = get_params_path(params_dir, degree, format);
     log::info!("load_or_create_params {}", params_path);
     if Path::new(&params_path).exists() {
-        match load_params(&params_path, degree) {
+        match load_params(&params_path, degree, format) {
             Ok(r) => return Ok(r),
             Err(e) => {
                 log::error!("load params err: {}. Recreating...", e)
             }
         }
     }
-    create_params(&params_path, degree)
+    create_params(&params_path, degree, format)
 }
 
 /// load params from file
-pub fn load_params(params_dir: &str, degree: usize) -> Result<ParamsKZG<Bn256>> {
+pub fn load_params(
+    params_dir: &str,
+    degree: usize,
+    format: SerdeFormat,
+) -> Result<ParamsKZG<Bn256>> {
     log::info!("start loading params with degree {}", degree);
     let params_path = if metadata(params_dir)?.is_dir() {
         // auto load
-        format!("{params_dir}/params{degree}")
+        get_params_path(params_dir, degree, format)
     } else {
         params_dir.to_string()
     };
     let f = File::open(params_path)?;
 
-    // check params file length:
-    //   len: 4 bytes
-    //   g: 2**DEGREE g1 points, each 32 bytes(256bits)
-    //   g_lagrange: 2**DEGREE g1 points, each 32 bytes(256bits)
-    //   g2: g2 point, 64 bytes
-    //   s_g2: g2 point, 64 bytes
-    let file_size = f.metadata()?.len();
-    if file_size != (1 << degree) * 64 + 132 {
-        return Err(anyhow::format_err!("invalid params file len {} for degree {}. check DEGREE or remove the invalid params file", file_size, degree));
+    if format == SerdeFormat::Processed {
+        // check params file length:
+        //   len: 4 bytes
+        //   g: 2**DEGREE g1 points, each 32 bytes(256bits)
+        //   g_lagrange: 2**DEGREE g1 points, each 32 bytes(256bits)
+        //   g2: g2 point, 64 bytes
+        //   s_g2: g2 point, 64 bytes
+        let file_size = f.metadata()?.len();
+        if file_size != (1 << degree) * 64 + 132 {
+            return Err(anyhow::format_err!("invalid params file len {} for degree {}. check DEGREE or remove the invalid params file", file_size, degree));
+        }
     }
 
-    let p = ParamsKZG::<Bn256>::read_custom::<_>(&mut BufReader::new(f), SerdeFormat::Processed)?;
+    let p = ParamsKZG::<Bn256>::read_custom::<_>(&mut BufReader::new(f), format)?;
     log::info!("load params successfully!");
     Ok(p)
 }
 
 /// create params and write it into file
-pub fn create_params(params_path: &str, degree: usize) -> Result<ParamsKZG<Bn256>> {
+pub fn create_params(
+    params_path: &str,
+    degree: usize,
+    format: SerdeFormat,
+) -> Result<ParamsKZG<Bn256>> {
     log::info!("start creating params with degree {}", degree);
     // The params used for production need to be generated from a trusted setup ceremony.
     // Here we use a deterministic seed to generate params. This method is unsafe for production usage.
@@ -85,7 +143,7 @@ pub fn create_params(params_path: &str, degree: usize) -> Result<ParamsKZG<Bn256
     };
     let params: ParamsKZG<Bn256> = ParamsKZG::<Bn256>::unsafe_setup_with_s(degree as u32, seed_fr);
     let mut params_buf = Vec::new();
-    params.write_custom(&mut params_buf, halo2_proofs::SerdeFormat::Processed)?;
+    params.write_custom(&mut params_buf, format)?;
 
     let mut params_file = File::create(params_path)?;
     params_file.write_all(&params_buf[..])?;

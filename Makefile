@@ -5,7 +5,7 @@ help: ## Display this help screen
 		-E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-test-ci: fmt clippy test ## Run all the CI checks locally (in your actual toolchain) 
+test-ci: fmt clippy test ## Run all the CI checks locally (in your actual toolchain)
 
 test-all: test-ci ## Run all available tests
 
@@ -13,7 +13,13 @@ build-release: ## Check build in release mode
 	@cargo build --release
 
 run-supper:
-	@cargo run --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace $PWD/traces-data --super true
+	@cargo run --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/traces-data --super true
+
+run-empty:
+	@cargo run --release --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/zkevm/tests/traces/empty.json
+
+convert:
+	@cargo run --bin convert -- --params zkevm/test_params --from-format=Processed --to-format=RawBytes
 
 fmt: ## Check whether the code is formated correctly
 	@cargo fmt --all -- --check
