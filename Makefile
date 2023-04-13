@@ -13,7 +13,7 @@ build-release: ## Check build in release mode
 	@cargo build --release
 
 run-supper:
-	@cargo run --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/traces-data --super true
+	@cargo run --release --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/traces-data --super true
 
 run-empty:
 	@cargo run --release --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/zkevm/tests/traces/empty.json
