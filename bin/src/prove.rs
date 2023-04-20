@@ -9,7 +9,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::time::Instant;
 use zkevm::{
-    circuit::{EvmCircuit, StateCircuit, AGG_DEGREE, DEGREE, SuperCircuit},
+    circuit::{EvmCircuit, StateCircuit, SuperCircuit, AGG_DEGREE, DEGREE},
     prover::Prover,
     utils::{get_block_trace_from_file, load_or_create_raw_params, load_or_create_seed},
 };
@@ -80,7 +80,9 @@ fn main() {
     if args.super_proof.is_some() {
         let now = Instant::now();
         prover
-            .create_target_circuit_proof_batch::<SuperCircuit>(&traces.iter().map(|(_, v)| v.clone()).collect::<Vec<_>>())
+            .create_target_circuit_proof_batch::<SuperCircuit>(
+                &traces.iter().map(|(_, v)| v.clone()).collect::<Vec<_>>(),
+            )
             .expect("cannot generate super_proof");
         info!(
             "finish generating super proof, elapsed: {:?}",
@@ -107,7 +109,6 @@ fn main() {
                 f.write_all(evm_proof.proof.as_slice()).unwrap();
             }
         }
-
 
         if args.state_proof.is_some() {
             let proof_path = PathBuf::from(&trace_name).join("state.proof");

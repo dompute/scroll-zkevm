@@ -16,7 +16,7 @@ run-supper:
 	@cargo run --release --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/traces-data --super true
 
 run-empty:
-	@cargo run --release --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/zkevm/tests/traces/empty.json
+	@cargo run --release --bin prove -- --params zkevm/test_params --seed zkevm/test_seed --trace ${PWD}/zkevm/tests/traces/empty.json --evm true
 
 convert:
 	@cargo run --bin convert -- --params zkevm/test_params --from-format=Processed --to-format=RawBytes

@@ -454,7 +454,7 @@ impl Prover {
 
         let public_inputs: &[&[&[Fr]]] = &[&instance_slice[..]];
 
-        info!(
+        log::info!(
             "Create {} proof of block {} ... block {}, batch len {}",
             C::name(),
             block_traces[0].header.hash.unwrap(),
