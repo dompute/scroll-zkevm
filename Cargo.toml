@@ -22,4 +22,3 @@ debug-assertions = true
 [profile.release]
 opt-level = 3
 debug-assertions = true
-debug = true
